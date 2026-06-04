@@ -27,7 +27,7 @@ router = APIRouter()
 _UPLOAD_TIMEOUT = httpx.Timeout(600.0, connect=10.0)
 _SEARCH_TIMEOUT = httpx.Timeout(600.0, connect=10.0)
 _ALLOWED_SUFFIXES = {".pdf", ".txt"}
-_DEFAULT_ENGINE: Literal["qwen", "bge"] = "qwen"
+_DEFAULT_ENGINE: Literal["qwen", "bge", "minilm"] = "qwen"
 _ENGINE_CONFIGS = {
     "qwen": {
         "base_url": "http://127.0.0.1:19000",
@@ -39,12 +39,17 @@ _ENGINE_CONFIGS = {
         "docs_table": "LC_DEMO_DOCUMENTS_BGE",
         "chunks_table": "LC_DEMO_CHUNKS_BGE",
     },
+    "minilm": {
+        "base_url": "http://127.0.0.1:19002",
+        "docs_table": "LC_DEMO_DOCUMENTS_MINI",
+        "chunks_table": "LC_DEMO_CHUNKS_MINI",
+    },
 }
 
 
 def _resolve_engine(
     engine: str | None,
-) -> tuple[Literal["qwen", "bge"], dict[str, str]]:
+) -> tuple[Literal["qwen", "bge", "minilm"], dict[str, str]]:
     normalized = (engine or _DEFAULT_ENGINE).strip().lower()
     if normalized not in _ENGINE_CONFIGS:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unsupported knowledge base engine.")
@@ -224,7 +229,7 @@ def _delete_document(
 @router.get("/health", response_model=KnowledgeBaseHealthResponse)
 async def get_knowledge_base_health(
     _admin: Annotated[dict, Depends(require_admin)],
-    engine: Annotated[Literal["qwen", "bge"], Query()] = _DEFAULT_ENGINE,
+    engine: Annotated[Literal["qwen", "bge", "minilm"], Query()] = _DEFAULT_ENGINE,
 ) -> KnowledgeBaseHealthResponse:
     _, config = _resolve_engine(engine)
     base_url = config["base_url"]
@@ -251,7 +256,7 @@ async def get_knowledge_base_health(
 async def list_knowledge_base_documents(
     _admin: Annotated[dict, Depends(require_admin)],
     svc: Annotated[ServiceContainer, Depends(get_services)],
-    engine: Annotated[Literal["qwen", "bge"], Query()] = _DEFAULT_ENGINE,
+    engine: Annotated[Literal["qwen", "bge", "minilm"], Query()] = _DEFAULT_ENGINE,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(alias="pageSize", ge=1, le=100)] = 10,
     keyword: Annotated[str | None, Query()] = None,
@@ -282,7 +287,7 @@ async def list_knowledge_base_documents(
 async def upload_knowledge_base_document(
     file: Annotated[UploadFile, File(...)],
     _admin: Annotated[dict, Depends(require_admin)],
-    engine: Annotated[Literal["qwen", "bge"], Form()] = _DEFAULT_ENGINE,
+    engine: Annotated[Literal["qwen", "bge", "minilm"], Form()] = _DEFAULT_ENGINE,
     chunk_size_tokens: Annotated[int, Form()] = 500,
     chunk_overlap_tokens: Annotated[int, Form()] = 50,
     source_file: Annotated[str, Form()] = "webui",
@@ -349,7 +354,7 @@ async def delete_knowledge_base_document(
     doc_id: int,
     _admin: Annotated[dict, Depends(require_admin)],
     svc: Annotated[ServiceContainer, Depends(get_services)],
-    engine: Annotated[Literal["qwen", "bge"], Query()] = _DEFAULT_ENGINE,
+    engine: Annotated[Literal["qwen", "bge", "minilm"], Query()] = _DEFAULT_ENGINE,
 ) -> KnowledgeBaseDeleteResponse:
     try:
         return await asyncio.to_thread(_delete_document, svc, engine=engine, doc_id=doc_id)

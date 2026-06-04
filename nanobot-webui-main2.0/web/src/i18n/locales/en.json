@@ -635,7 +635,8 @@
     "engineLabel": "Model Engine",
     "engines": {
       "qwen": "Qwen",
-      "bge": "BGE"
+      "bge": "BGE",
+      "minilm": "MiniLM"
     },
     "engineBadge": "Current Engine: {{engine}}",
     "tableBindingTitle": "Bound Tables",

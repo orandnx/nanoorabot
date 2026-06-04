@@ -37,7 +37,7 @@ const SCORE_OPTIONS = ["0.300", "0.500", "0.700", "0.900"] as const;
 const DOCUMENT_TYPE_OPTIONS = ["all", "pdf", "txt"] as const;
 const PAGE_SIZE_OPTIONS = ["10", "20", "50"] as const;
 const DEVICE_OPTIONS = ["auto", "cuda", "cpu"] as const;
-const ENGINE_OPTIONS = ["qwen", "bge"] as const;
+const ENGINE_OPTIONS = ["qwen", "bge", "minilm"] as const;
 const ENGINE_STORAGE_KEY = "knowledgeBase.selectedEngine";
 
 const ENGINE_TABLES: Record<KnowledgeBaseEngine, { docs: string; chunks: string }> = {
@@ -48,6 +48,10 @@ const ENGINE_TABLES: Record<KnowledgeBaseEngine, { docs: string; chunks: string 
   bge: {
     docs: "LC_DEMO_DOCUMENTS_BGE",
     chunks: "LC_DEMO_CHUNKS_BGE",
+  },
+  minilm: {
+    docs: "LC_DEMO_DOCUMENTS_MINI",
+    chunks: "LC_DEMO_CHUNKS_MINI",
   },
 };
 
@@ -139,7 +143,10 @@ export default function KnowledgeBase() {
       return "qwen";
     }
     const savedEngine = window.localStorage.getItem(ENGINE_STORAGE_KEY);
-    return savedEngine === "bge" ? "bge" : "qwen";
+    if (savedEngine === "bge" || savedEngine === "minilm") {
+      return savedEngine;
+    }
+    return "qwen";
   });
   const healthQuery = useKnowledgeBaseHealth(engine);
   const uploadMutation = useUploadKnowledgeDocument();
@@ -148,10 +155,12 @@ export default function KnowledgeBase() {
   const [searchStates, setSearchStates] = useState<Record<KnowledgeBaseEngine, EngineSearchState>>({
     qwen: { ...DEFAULT_ENGINE_SEARCH_STATE },
     bge: { ...DEFAULT_ENGINE_SEARCH_STATE },
+    minilm: { ...DEFAULT_ENGINE_SEARCH_STATE },
   });
   const [listStates, setListStates] = useState<Record<KnowledgeBaseEngine, EngineListState>>({
     qwen: { ...DEFAULT_ENGINE_LIST_STATE },
     bge: { ...DEFAULT_ENGINE_LIST_STATE },
+    minilm: { ...DEFAULT_ENGINE_LIST_STATE },
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadResultsByEngine, setUploadResultsByEngine] = useState<
@@ -159,6 +168,7 @@ export default function KnowledgeBase() {
   >({
     qwen: [],
     bge: [],
+    minilm: [],
   });
   const [fileInputKey, setFileInputKey] = useState(0);
 

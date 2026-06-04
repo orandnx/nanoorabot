@@ -635,7 +635,8 @@
     "engineLabel": "模型引擎",
     "engines": {
       "qwen": "Qwen",
-      "bge": "BGE"
+      "bge": "BGE",
+      "minilm": "MiniLM"
     },
     "engineBadge": "当前引擎：{{engine}}",
     "tableBindingTitle": "当前绑定表",

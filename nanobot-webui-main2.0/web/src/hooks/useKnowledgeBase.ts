@@ -8,7 +8,7 @@ export interface KnowledgeBaseHealth {
   baseUrl: string;
 }
 
-export type KnowledgeBaseEngine = "qwen" | "bge";
+export type KnowledgeBaseEngine = "qwen" | "bge" | "minilm";
 
 export interface KnowledgeBaseUploadInput {
   file: File;

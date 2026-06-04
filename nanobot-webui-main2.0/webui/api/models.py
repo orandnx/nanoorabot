@@ -164,7 +164,7 @@ class KnowledgeBaseSearchRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
     topK: int = Field(default=5, ge=1, le=50)
     rerankerScore: float = Field(default=0.3, ge=0.0, le=1.0)
-    engine: Literal["qwen", "bge"] = "qwen"
+    engine: Literal["qwen", "bge", "minilm"] = "qwen"
     documentType: Literal["pdf", "txt"] | None = None
     device: Literal["auto", "cuda", "cpu"] = "auto"
 
